@@ -1,0 +1,35 @@
+How do I write a Jenkinsfile  to get the status of joba from pipeline job?
+If you're working within a pipeline job 'jobb' and you want to retrieve the status of another job, let's say 'joba', you can use the build step to do so, which will trigger 'joba' and allow you to capture information about its execution. However, if you want to retrieve the status of the most recent build of 'joba' without triggering a new build, you would use the Jenkins pipeline script to access Jenkins API or use built-in Groovy methods to retrieve the information about the last build's status.
+
+Below is a simple example of a Jenkinsfile for 'jobb' that retrieves the status of the last build of 'joba':
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('Check joba status') {
+            steps {
+                script {
+                    def job = Jenkins.instance.getItemByFullName("joba") // This assumes 'joba' is at the top level, adjust if it's in a folder
+                    def lastBuild = job?.getLastBuild()
+
+                    if (lastBuild) {
+                        // This will print the result of the last build which can be SUCCESS, FAILURE, or UNSTABLE
+                        echo "The last build of joba finished with status: ${lastBuild.result}"
+                        
+                        // You can add conditions based on the result
+                        if (lastBuild.result == hudson.model.Result.SUCCESS) {
+                            echo "Job 'joba' was successful."
+                        } else if (lastBuild.result == hudson.model.Result.FAILURE) {
+                            echo "Job 'joba' failed."
+                        } else if (lastBuild.result == hudson.model.Result.UNSTABLE) {
+                            echo "Job 'joba' was unstable."
+                        }
+                    } else {
+                        echo "Job 'joba' has no recorded builds."
+                    }
+                }
+            }
+        }
+    }
+}
