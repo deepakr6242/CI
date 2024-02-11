@@ -33,3 +33,31 @@ pipeline {
         }
     }
 }
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+pipeline {
+    agent any
+    stages {
+        stage("Check Job Status") {
+            steps {
+                script {
+                    def jenkins = jenkins.model.Jenkins.instance
+                    def job = jenkins.getItemByFullName("joba", hudson.model.Job.class)
+
+                    if (job == null) {
+                        println "Job 'joba' does not exist."
+                    } else {
+                        def lastBuild = job.getLastBuild()
+                        if (lastBuild != null) {
+                            def buildResult = lastBuild.getResult()
+                            println "Job 'joba' last build result: ${buildResult}"
+                        } else {
+                            println "Job 'joba' has no builds yet."
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
